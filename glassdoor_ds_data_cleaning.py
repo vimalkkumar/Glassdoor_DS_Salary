@@ -37,7 +37,7 @@ dataset['Company Name Text'] = dataset['Company Name Text'].apply(lambda x: x.re
 
 # Spliting the state from the location feature also handling the  Los Angeles to CA
 dataset['State'] = dataset['Location'].apply(lambda x: x.split(',')[1])
-dataset['State'] = dataset['State'].apply(lambda x: x.replace(' Los Angeles', 'CA'))
+dataset['State'] = dataset['State'].apply(lambda x: x.strip() if x.strip().lower() != 'los angeles' else 'CA')
 
 # Checking the Company headquarteras are same state or not
 dataset['Same State'] = dataset.apply(lambda x: 1 if x['Location'] == x['Headquarters'] else 0, axis = 1)
