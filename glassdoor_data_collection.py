@@ -1,16 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jan 28 21:01:16 2021
-
-@author: vimal
-Credit:
-    
-Selenium Tutorial: Scraping Glassdoor.com in 10 Minutes
-Ömer Sakarya
-
-"""
-
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from selenium import webdriver
 import time
