@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sbn
 import copy
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Lasso
 import statsmodels.api as sm
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
@@ -65,17 +65,38 @@ def main():
     # Fitting the Multiple Linear Regression to the Training Set
     ml_regressor = LinearRegression()
     ml_regressor.fit(X_train, y_train)
+     
+    # Validating using Cross Validation 
+    cvs = cross_val_score(estimator = ml_regressor, X = X_train, y = y_train, scoring = 'neg_mean_absolute_error', cv = 5)
+    np.mean(cvs)
     
     # Predicting the Test Set Result 
     y_pred = ml_regressor.predict(X_test)
     
     # Building the optimal model (Ordinary Least Squares)
-    X_sm = sm.add_constant(X)
-    regressor_OLS = sm.OLS(endog = y, exog = X_sm).fit()   
+    X_sm = X = sm.add_constant(X)
+    regressor_OLS = sm.OLS(y, X_sm).fit()   
     regressor_OLS.summary()
     
-    # Validating using Cross Validation 
-    cross_val_score(estimator = ml_regressor, X = X_train, y = y_train, scoring = 'neg_mean_absolute_error').mean()
+    # Implementing the lasso regression 
+    ls_regressor = Lasso()
+    cvs_lsr = cross_val_score(estimator = ls_regressor, X = X_train, y = y_train, scoring = 'neg_mean_absolute_error', cv = 5)
+    np.mean(cvs_lsr)
+    
+    alpha = []
+    error = []
+    for i in range(1, 100):
+        alpha.append(i/100)
+        ls_reg = Lasso(alpha = (i/100))
+        error.append(cross_val_score(estimator = ls_reg, X = X_train, y = y_train, scoring = 'neg_mean_absolute_error', cv = 5).mean())
+        
+    # Ploting the result
+    plt.plot(alpha, error)
+    plt.xlabel("Alpha")
+    plt.ylabel('Error')
+    plt.show()
+    
+    
 
 if __name__ == "__main__":
     main()
