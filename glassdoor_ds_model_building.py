@@ -8,6 +8,9 @@ from sklearn.linear_model import LinearRegression, Lasso
 import statsmodels.api as sm
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_absolute_error
 
 def main():
     # Importing the whole dataset
@@ -70,9 +73,6 @@ def main():
     cvs = cross_val_score(estimator = ml_regressor, X = X_train, y = y_train, scoring = 'neg_mean_absolute_error', cv = 5)
     np.mean(cvs)
     
-    # Predicting the Test Set Result 
-    y_pred = ml_regressor.predict(X_test)
-    
     # Building the optimal model (Ordinary Least Squares)
     X_sm = X = sm.add_constant(X)
     regressor_OLS = sm.OLS(y, X_sm).fit()   
@@ -96,7 +96,54 @@ def main():
     plt.ylabel('Error')
     plt.show()
     
+    error_alpha = tuple(zip(alpha, error))
+    df_error_alpha = pd.DataFrame(error_alpha, columns = ['alpha', 'error'])
+    df_error_alpha[df_error_alpha.error == max(df_error_alpha.error)]
     
+    # Implementing the Random Forest Regression
+    rf_regressor = RandomForestRegressor()
+    # cross Value Score for Random Forest Regression
+    rf_cvs = cross_val_score(estimator = rf_regressor, X = X_train, y = y_train, scoring = 'neg_mean_absolute_error', cv = 5).mean()
+    
+    # GridSearch for Parameter tunning for Random Search
+    parameters = {
+        'n_estimators' : range(10, 100, 10),
+        'criterion': ('mse', 'mae'),
+        'max_features': ("auto", "sqrt", "log2")}
+    
+    grid_search = GridSearchCV(rf_regressor, parameters, scoring = 'neg_mean_absolute_error', cv = 5)
+    grid_search.fit(X_train, y_train)
+    
+    # Checking the best Score
+    grid_search.best_score_
+    # Checking the good Estimator
+    grid_search.best_estimator_
+    """
+    RandomForestRegressor(max_features='sqrt', n_estimators=80)
+    """
+    
+    # Its time Predict the result for each model
+    # For Linear Regression for Multi Variable 
+    y_pred_mlr = ml_regressor.predict(X_test)
+    
+    # For Lasso Regression
+    ls_regressor = Lasso(alpha = 0.07)
+    ls_regressor.fit(X_train, y_train)
+    
+    y_pred_lsr = ls_regressor.predict(X_test)
+    
+    # For Random Forest Regression
+    y_pred_rfr = grid_search.best_estimator_.predict(X_test)
+    
+    # Its time to understand the Mean Absolute Eroor
+    # for linear model
+    mean_absolute_error(y_test, y_pred_mlr)
+    # for Lasso Regression
+    mean_absolute_error(y_test, y_pred_lsr)
+    # for Random Forest Regression
+    mean_absolute_error(y_test, y_pred_rfr)
+    
+        
 
 if __name__ == "__main__":
     main()
