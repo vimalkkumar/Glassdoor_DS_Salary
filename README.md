@@ -1,6 +1,8 @@
 # Glassdoor_DS_Salary
 
+Career opportunities in data have exponentially grown in the recent few years. Companies are eager to capture data and derive insights from it because of the technological advancements we are seeing. 
 
+I have try to predicting the salary range of the data scientist using Random forest Regression. 
 
 
 
